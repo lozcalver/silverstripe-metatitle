@@ -24,6 +24,8 @@ class MetaTitleExtensionTest extends SapphireTest
         MetaTitleExtensionTest_DataObject::class
     ];
 
+    protected string $originalLocale = '';
+
     protected function setUp(): void
     {
         parent::setUp();
