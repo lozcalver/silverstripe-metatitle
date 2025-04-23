@@ -5,17 +5,19 @@ namespace Kinglozzer\SilverStripeMetaTitle;
 use SilverStripe\CMS\Model\RedirectorPage;
 use SilverStripe\CMS\Model\VirtualPage;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
-use SilverStripe\ORM\DataExtension;
-use SilverStripe\View\ArrayData;
+use SilverStripe\Core\Extension;
+use SilverStripe\Model\ArrayData;
 use SilverStripe\View\HTML;
-use SilverStripe\View\SSViewer;
+use SilverStripe\View\TemplateEngine;
+use SilverStripe\View\ViewLayerData;
 
 /**
  * @property string $MetaTitle
  */
-class MetaTitleExtension extends DataExtension
+class MetaTitleExtension extends Extension
 {
     private static array $db = [
         'MetaTitle' => 'Varchar(255)'
@@ -53,7 +55,7 @@ class MetaTitleExtension extends DataExtension
      *
      * @param string &$tags
      */
-    public function MetaTags(&$tags)
+    public function updateMetaTags(&$tags): void
     {
         // Only attempt to replace <title> tag if it has been included, as it won't
         // be included if called via $MetaTags(false)
@@ -64,7 +66,9 @@ class MetaTitleExtension extends DataExtension
                 'MetaTitle' => $this->owner->MetaTitle ? $this->owner->obj('MetaTitle') : $this->owner->obj('Title')
             ]);
 
-            $newTitleTag = HTML::createTag('title', [], SSViewer::execute_string($format, $data));
+            $templateEngine = Injector::inst()->create(TemplateEngine::class, $format);
+            $newTitleTag = HTML::createTag('title', [], $templateEngine->renderString($format, ViewLayerData::create($data)));
+
             $tags = preg_replace("/<title>(.+)<\/title>/i", $newTitleTag, $tags);
         }
     }
