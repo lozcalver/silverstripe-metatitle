@@ -23,6 +23,10 @@ class MetaTitleExtension extends Extension
         'MetaTitle' => 'Varchar(255)'
     ];
 
+    private static array $scaffold_cms_fields_settings = [
+        'ignoreFields' => ['MetaTitle'],
+    ];
+
     private static string $title_format = '$MetaTitle &raquo; $SiteConfig.Title';
 
     public function updateCMSFields(FieldList $fields)
